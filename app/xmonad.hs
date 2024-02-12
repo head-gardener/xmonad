@@ -1,4 +1,5 @@
 import MyXmonad.Notif
+import MyXmonad.CPanel qualified as CP
 import XMonad
 import XMonad.Actions.Commands
 import XMonad.Actions.CycleRecentWS (toggleRecentNonEmptyWS)
@@ -81,8 +82,8 @@ myKeys =
     ("<XF86AudioRaiseVolume>", "vol up", spawn "cpanel volup"),
     ("<XF86AudioLowerVolume>", "vol down", spawn "cpanel voldown"),
     ("<XF86AudioMute>", "vol mute", spawn "cpanel volmute"),
-    ("<XF86MonBrightnessUp>", "backlight up", spawn "cpanel blup"),
-    ("<XF86MonBrightnessDown>", "backlight down", spawn "cpanel bldown"),
+    ("<XF86MonBrightnessUp>", "backlight up", CP.blup),
+    ("<XF86MonBrightnessDown>", "backlight down", CP.bldown),
     ("M-C-<Return>", "spawn no-tmux shell", spawn (term ++ " " ++ shell)),
     ("M-c", "run command", myCommands >>= runCommand),
     ("M-a", "toggle non-empty ws", toggleRecentNonEmptyWS),
@@ -125,6 +126,7 @@ searchEngines =
         "https://search.nixos.org/options?channel=23.11&size=50&sort=relevance&type=packages&query="
     ),
     ("hackage", hackage),
+    ("hoogle", hoogle),
     ("phind", searchEngine "phind" "https://www.phind.com/search?q="),
     ("vocabulary", vocabulary)
   ]

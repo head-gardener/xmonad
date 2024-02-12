@@ -14,16 +14,36 @@
         };
       };
 
-      perSystem = { self', system, pkgs, config, ... }: {
+      perSystem = { self', system, pkgs, lib, config, package, ... }: {
+        _module.args.package = hpack: hpack.developPackage {
+          root = ./.;
+          name = "myxmonad";
+
+          modifier = drv: drv.overrideAttrs (final: prev: {
+            postPatch = ''
+              substituteInPlace ./lib/MyXmonad/CPanel.hs \
+                --replace '"pw-volume"' '"${lib.getExe pkgs.pw-volume}"' \
+                --replace '"brightnessctl"' '"${lib.getExe pkgs.brightnessctl}"'
+            '';
+          });
+        };
+
+        # wrapper thing, might be better but idk
+        _module.args.wrapper = drv: drv.overrideAttrs (final: prev: {
+          nativeBuildInputs = prev.nativeBuildInputs ++ [ pkgs.makeWrapper ];
+          postFixup = ''
+            wrapProgram $out/bin/xmonad \
+              --prefix PATH : ${nixpkgs.lib.makeBinPath
+                [ pkgs.brightnessctl pkgs.pw-volume ]}
+          '';
+        });
+
         _module.args.pkgs = import inputs.nixpkgs {
           inherit system;
           overlays = [
             (final: prev: {
               haskellPackages = prev.haskellPackages.extend (_: super: {
-                myxmonad = super.developPackage {
-                  root = ./.;
-                  name = "myxmonad";
-                };
+                myxmonad = package super;
               });
             })
           ];

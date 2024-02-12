@@ -19,10 +19,16 @@ library:
   generated-other-modules: Paths_myxmonad
   dependencies:
     - libnotify
+    - split
 
 executables:
+  cpanel:
+    source-dirs: app
+    main: cpanel.hs
+    dependencies:
+      myxmonad
   xmonad:
-    source-dirs: .
+    source-dirs: app
     main: xmonad.hs
     dependencies:
       myxmonad

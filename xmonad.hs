@@ -1,6 +1,4 @@
-import Control.Monad
-import Libnotify
-import Libnotify qualified as LN
+import MyXmonad.Notif
 import XMonad
 import XMonad.Actions.Commands
 import XMonad.Actions.CycleRecentWS (toggleRecentNonEmptyWS)
@@ -62,13 +60,6 @@ myManage =
       className =? "easyeffects" --> doShift "6",
       manageDocks
     ]
-
-notif :: String -> X ()
-notif s =
-  liftIO $
-    void $
-      LN.display $
-        summary "XMonad notification" <> LN.body s
 
 toKeys :: [(String, String, X ())] -> [(String, X ())]
 toKeys = fmap (\(a, _, b) -> (a, b))

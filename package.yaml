@@ -1,5 +1,5 @@
 spec-version: 0.35.1
-name: my-xmonad
+name: myxmonad
 version: 0.1.0.0
 
 ghc-options:
@@ -11,30 +11,18 @@ default-extensions:
 
 dependencies:
   - base >= 4.12 && < 5
-  - text
-  - mtl
   - xmonad
   - xmonad-contrib
-  - libnotify
 
-# library:
-#   source-dirs: src
-#   generated-other-modules: Paths_bookshelf
-#   dependencies:
-#     - utf8-string
-#     - transformers
-#     - magic
-#     - cityhash
-#     - base64-bytestring
-#     - bytestring
-#     - binary
-#     - directory
-#     - filepath
-#     - zlib
-#     - tar
-#     - containers
+library:
+  source-dirs: lib
+  generated-other-modules: Paths_myxmonad
+  dependencies:
+    - libnotify
 
 executables:
   xmonad:
     source-dirs: .
     main: xmonad.hs
+    dependencies:
+      myxmonad

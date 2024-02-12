@@ -20,6 +20,8 @@
           name = "myxmonad";
 
           modifier = drv: drv.overrideAttrs (final: prev: {
+            meta.mainProgram = "xmonad";
+
             postPatch = ''
               substituteInPlace ./lib/MyXmonad/CPanel.hs \
                 --replace '"pw-volume"' '"${lib.getExe pkgs.pw-volume}"' \

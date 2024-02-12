@@ -84,7 +84,7 @@ myKeys =
       "restart from dev dir",
       do
         notif "restarting"
-        restart "/home/hunter/config/dots/xmonad/result/bin/xmonad" True
+        restart "/home/hunter/xmonad/result/bin/xmonad" True
     ),
     ("M-d", "main menu", spawn "main-menu"),
     ("<XF86AudioRaiseVolume>", "vol up", spawn "cpanel volup"),

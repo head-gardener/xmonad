@@ -29,6 +29,12 @@
           ];
         };
 
+        formatter = pkgs.nixpkgs-fmt;
+
+        checks = {
+          build = self'.packages.default;
+        };
+
         devShells.default = with pkgs.haskellPackages; shellFor {
           nativeBuildInputs = [
             cabal-install

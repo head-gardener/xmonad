@@ -127,6 +127,7 @@ searchEngines =
     ),
     ("hackage", hackage),
     ("hoogle", hoogle),
+    ("noogle", searchEngine "noogle" "https://noogle.dev/q?term="),
     ("phind", searchEngine "phind" "https://www.phind.com/search?q="),
     ("vocabulary", vocabulary)
   ]

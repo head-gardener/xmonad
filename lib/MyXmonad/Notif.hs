@@ -8,20 +8,31 @@ import Libnotify qualified as LN
 import XMonad
 import XMonad.Util.ExtensibleState qualified as XS
 
+class (MonadIO m) => HasNotifPersistance m where
+  getNID :: m (Maybe Notification)
+  putNID :: Notification -> m ()
+
+  notif :: Mod Notification -> m ()
+  notif n = do
+    s :: Maybe Notification <- getNID
+    liftIO $ print s
+    let msg = n <> maybe mempty reuse s
+    putNID =<< liftIO (LN.display msg)
+
+instance HasNotifPersistance IO where
+  getNID = return Nothing
+  putNID _ = return ()
+
+instance HasNotifPersistance X where
+  getNID = XS.get
+  putNID = XS.put . Just
+
 instance ExtensionClass (Maybe Notification) where
   initialValue = Nothing
 
-notif :: String -> X ()
-notif = void . notif'
-
-notif' :: (MonadIO m) => String -> m Notification
+notif' :: (MonadIO m) => String -> m ()
 notif' s =
-  liftIO $
-    LN.display $
-      summary "XMonad notification" <> LN.body s
-
-persistentNotif :: Mod Notification -> X ()
-persistentNotif n = do
-  s :: Maybe Notification <- XS.get
-  let msg = n <> maybe mempty reuse s
-  XS.put . Just =<< liftIO (LN.display msg)
+  void $
+    liftIO $
+      LN.display $
+        summary "XMonad notification" <> LN.body s

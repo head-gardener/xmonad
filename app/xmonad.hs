@@ -75,15 +75,15 @@ myKeys =
     ( "M-r",
       "restart from dev dir",
       do
-        notif "restarting"
+        notif' "restarting"
         restart "/home/hunter/xmonad/result/bin/xmonad" True
     ),
     ("M-d", "main menu", spawn "main-menu"),
     ("<XF86AudioRaiseVolume>", "vol up", spawn "cpanel volup"),
     ("<XF86AudioLowerVolume>", "vol down", spawn "cpanel voldown"),
     ("<XF86AudioMute>", "vol mute", spawn "cpanel volmute"),
-    ("<XF86MonBrightnessUp>", "backlight up", CP.blup),
-    ("<XF86MonBrightnessDown>", "backlight down", CP.bldown),
+    ("<XF86MonBrightnessUp>", "backlight up", CP.blup def),
+    ("<XF86MonBrightnessDown>", "backlight down", CP.bldown def),
     ("M-C-<Return>", "spawn no-tmux shell", spawn (term ++ " " ++ shell)),
     ("M-c", "run command", myCommands >>= runCommand),
     ("M-a", "toggle non-empty ws", toggleRecentNonEmptyWS),
@@ -146,7 +146,6 @@ myEasyMotion =
 keyRef :: X ()
 keyRef = runCommand $ toCommands myKeys
 
--- https://hackage.haskell.org/package/xmonad-contrib-0.18.0/docs/XMonad-Actions-GridSelect.html
 myGSConfig :: GSConfig a
 myGSConfig =
   (buildDefaultGSConfig colorizer)

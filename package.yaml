@@ -20,6 +20,10 @@ library:
   dependencies:
     - libnotify
     - split
+    - aeson
+    - bytestring
+    - process
+    - transformers
 
 executables:
   cpanel:

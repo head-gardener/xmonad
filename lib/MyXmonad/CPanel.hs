@@ -1,51 +1,81 @@
-module MyXmonad.CPanel (volmute, blup, bldown, volmute', doBacklight') where
+module MyXmonad.CPanel (CPConfig, def, blup, bldown) where
 
+import Control.Monad (void)
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Maybe
+import Data.Aeson (FromJSON, decode)
+import Data.ByteString.Lazy qualified as BL
+import Data.List.Split (splitOn)
+import Data.Maybe (fromMaybe)
+import GHC.Generics (Generic)
 import Libnotify
 import Libnotify qualified as LN
 import MyXmonad.Notif
-import XMonad
+import System.Process
+import XMonad (Default (..))
 import XMonad.Util.Run (runProcessWithInput)
-import Data.List.Split (splitOn)
 
-volmute' :: IO String
-volmute' = do
-  runProcessWithInput "pw-volume" ["mute", "toggle"] ""
+-- remove once we get 0.6 transformers
+hoistMaybe :: (Applicative m) => Maybe b -> MaybeT m b
+hoistMaybe = MaybeT . pure
 
-volmute :: X ()
-volmute = do
-  s <- runProcessWithInput "pw-volume" ["mute", "toggle"] ""
-  pmnotif
+data PWStatus = PWStatus
+  { tooltip :: String,
+    percentage :: Int
+  }
+  deriving (Generic, Show)
 
-doNotify :: Mod Notification -> X ()
-doNotify n =
-  persistentNotif $
-    LN.urgency LN.Low <> LN.timeout (LN.Custom 1500) <> n
+instance FromJSON PWStatus
 
-doBacklight' :: Char -> IO String
-doBacklight' op = do
-  formattter <$> runProcessWithInput
-    "brightnessctl"
-    ["set", "5%" ++ [op], "-m"]
-    ""
+newtype CPConfig = CPConfig
+  { notifStyle :: Mod Notification
+  }
+
+instance Default CPConfig where
+  def =
+    CPConfig
+      { notifStyle = LN.urgency LN.Low <> LN.timeout (LN.Custom 1500)
+      }
+
+type BacklightOp = Char
+
+doBacklight :: (HasNotifPersistance m) => CPConfig -> BacklightOp -> m ()
+doBacklight c op = do
+  br <- formatter <$> liftIO command
+  notif $ notifStyle c <> LN.summary "Backlight" <> LN.body ("set to " ++ br)
   where
-    -- "intel_backlight,backlight,7500,100%,7500" -> "100%"
-    formattter :: String -> String
-    formattter = (!! 3) . splitOn ","
+    formatter = (!! 3) . splitOn ","
 
-doBacklight :: Char -> X ()
-doBacklight op = do
-  br <- liftIO $ doBacklight' op
-  -- br <- runProcessWithInput "brightnessctl"
-  -- ["set", "-e", "'5%" ++ op ++"'", "-m"] ""
-  doNotify $ LN.summary "Backlight" <> LN.body ("set to " ++ br)
+    command :: IO String
+    command =
+      runProcessWithInput
+        "brightnessctl"
+        ["set", "5%" ++ [op], "-m"]
+        ""
 
-blup, bldown :: X ()
-blup = doBacklight '+'
-bldown = doBacklight '-'
+volmute, volup, voldown, blup, bldown :: (HasNotifPersistance m) => CPConfig -> m ()
+blup c = doBacklight c '+'
+bldown c = doBacklight c '-'
+volmute c = do
+  void $ runProcessWithInput "pw-volume" ["mute", "toggle"] ""
+  pmnotif c
+volup c = do
+  void $ runProcessWithInput "pw-volume" ["change", "+1%"] ""
+  pmnotif c
+voldown c = do
+  void $ runProcessWithInput "pw-volume" ["change", "-1%"] ""
+  pmnotif c
 
-pmnotif :: X ()
-pmnotif = do
-  doNotify $ LN.summary "Volume" <> LN.body "muting"
+pmnotif :: (HasNotifPersistance m) => CPConfig -> m ()
+pmnotif c = do
+  tt <- fmap (fromMaybe "Internall Error") $ runMaybeT $ do
+    (_, mstat, _, _) <- liftIO $ createProcess (proc "pw-volume" ["status"])
+    stat <- hoistMaybe mstat
+    stat' <- liftIO $ BL.hGetContents stat
+    -- stat'' <- hoistMaybe $ decode stat'
+    return $ show stat' -- tooltip stat''
+  pmnotif c
+  notif $ notifStyle c <> LN.summary "Volume" <> LN.body tt
 
 -- pwnotif() {
 --   tt=$(pw-volume status\

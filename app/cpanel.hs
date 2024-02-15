@@ -1,11 +1,14 @@
-import MyXmonad.CPanel qualified as CP
+import MyXmonad.CPanel
 import System.Environment (getArgs)
+import System.Exit (die)
 
 main :: IO ()
 main = do
   arg <- getArgs
   case arg of
-    ["blup"] -> CP.doBacklight' '+'
-    ["bldown"] -> CP.doBacklight' '-'
-    _ -> return "bad args"
-    >>= putStrLn
+    ["blup"] -> blup def
+    ["bldown"] -> bldown def
+    -- ["volmute"] -> volmute def
+    -- ["volup"] -> volup def
+    -- ["voldown"] -> voldown def
+    _ -> die "bad args"

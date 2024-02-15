@@ -15,7 +15,6 @@ class (MonadIO m) => HasNotifPersistance m where
   notif :: Mod Notification -> m ()
   notif n = do
     s :: Maybe Notification <- getNID
-    liftIO $ print s
     let msg = n <> maybe mempty reuse s
     putNID =<< liftIO (LN.display msg)
 

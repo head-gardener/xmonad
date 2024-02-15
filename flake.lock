@@ -52,10 +52,27 @@
         "type": "github"
       }
     },
+    "pw-volume": {
+      "locked": {
+        "lastModified": 1708030557,
+        "narHash": "sha256-90SQgTy4NP+Q7aboRQ7tp1Q0g9bTKAKe6UFUmhkuLSE=",
+        "owner": "head-gardener",
+        "repo": "nixpkgs",
+        "rev": "a31953a1e05566ad05a4107b9fe04af48a5fb2cb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "head-gardener",
+        "ref": "pw-volume-fix",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "flake-parts": "flake-parts",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "pw-volume": "pw-volume"
       }
     }
   },

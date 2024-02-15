@@ -3,6 +3,7 @@ name: myxmonad
 version: 0.1.0.0
 ghc-options:
 - -Wall
+- -threaded
 language: GHC2021
 default-extensions:
 - OverloadedStrings

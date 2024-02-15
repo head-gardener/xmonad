@@ -2,6 +2,7 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
     flake-parts.url = "github:hercules-ci/flake-parts";
+    pw-volume.url = "github:head-gardener/nixpkgs/pw-volume-fix";
   };
   outputs = inputs@{ self, nixpkgs, flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
@@ -14,7 +15,7 @@
         };
       };
 
-      perSystem = { self', system, pkgs, lib, config, package, ... }: {
+      perSystem = { self', system, pkgs, lib, wrapper, config, package, ... }: {
         _module.args.package = hpack: hpack.developPackage {
           root = ./.;
           name = "myxmonad";
@@ -30,13 +31,12 @@
           });
         };
 
-        # wrapper thing, might be better but idk
         _module.args.wrapper = drv: drv.overrideAttrs (final: prev: {
           nativeBuildInputs = prev.nativeBuildInputs ++ [ pkgs.makeWrapper ];
           postFixup = ''
             wrapProgram $out/bin/xmonad \
               --prefix PATH : ${nixpkgs.lib.makeBinPath
-                [ pkgs.brightnessctl pkgs.pw-volume ]}
+                [ pkgs.pipewire ]}
           '';
         });
 
@@ -44,8 +44,9 @@
           inherit system;
           overlays = [
             (final: prev: {
+              pw-volume = inputs.pw-volume.legacyPackages.${system}.pw-volume;
               haskellPackages = prev.haskellPackages.extend (_: super: {
-                myxmonad = package super;
+                myxmonad = wrapper (package super);
               });
             })
           ];

@@ -1,38 +1,31 @@
 spec-version: 0.35.1
 name: myxmonad
 version: 0.1.0.0
-
 ghc-options:
-  - -Wall
-
+- -Wall
 language: GHC2021
 default-extensions:
-  - OverloadedStrings
-
+- OverloadedStrings
 dependencies:
-  - base >= 4.12 && < 5
-  - xmonad
-  - xmonad-contrib
-
+- base >= 4.12 && < 5
+- xmonad
+- xmonad-contrib
 library:
   source-dirs: lib
   generated-other-modules: Paths_myxmonad
   dependencies:
-    - libnotify
-    - split
-    - aeson
-    - bytestring
-    - process
-    - transformers
-
+  - libnotify
+  - split
+  - aeson
+  - bytestring
+  - process
+  - transformers
 executables:
   cpanel:
-    source-dirs: app
-    main: cpanel.hs
-    dependencies:
-      myxmonad
+    source-dirs: cpanel
+    main: main.hs
+    dependencies: myxmonad
   xmonad:
     source-dirs: app
     main: xmonad.hs
-    dependencies:
-      myxmonad
+    dependencies: myxmonad

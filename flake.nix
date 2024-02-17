@@ -13,6 +13,20 @@
         overlays.default = final: prev: {
           myxmonad = self.packages.x86_64-linux.default;
         };
+
+        nixosModules.powerwatch = ({ lib, pkgs, ... }: {
+          systemd.user.services.powerwatch = {
+            enable = true;
+
+            description = "PowerWatch daemon";
+            after = [ "multi-user.target" ];
+
+            serviceConfig = {
+              ExecStart = "${lib.getExe' self.packages.${pkgs.stdenv.system}.default "powerwatch"}";
+            };
+          };
+
+        });
       };
 
       perSystem = { self', system, pkgs, lib, wrapper, config, package, ... }: {

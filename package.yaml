@@ -25,8 +25,16 @@ executables:
   cpanel:
     source-dirs: cpanel
     main: main.hs
-    dependencies: myxmonad
+    dependencies:
+    - myxmonad
   xmonad:
     source-dirs: app
     main: xmonad.hs
     dependencies: myxmonad
+  powerwatch:
+    source-dirs: app
+    main: powerwatch.hs
+    dependencies:
+    - dbus
+    - libnotify
+    - containers

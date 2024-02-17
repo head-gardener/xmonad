@@ -19,7 +19,8 @@
             enable = true;
 
             description = "PowerWatch daemon";
-            after = [ "multi-user.target" ];
+            wants = [ "upower.service" ];
+            after = [ "upower.service" ];
 
             serviceConfig = {
               ExecStart = "${lib.getExe' self.packages.${pkgs.stdenv.system}.default "powerwatch"}";

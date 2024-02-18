@@ -37,8 +37,9 @@ myConfig =
       manageHook = myManage,
       workspaces = myWorkspaces,
       layoutHook = spacingWithEdge 10 layout,
-      normalBorderColor = "#3c3c3c",
-      focusedBorderColor = "black"
+      -- normalBorderColor = "#3c3c3c",
+      -- focusedBorderColor = "black",
+      borderWidth = 0
     }
     `additionalKeysP` toKeys myKeys
   where

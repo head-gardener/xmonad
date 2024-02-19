@@ -71,6 +71,8 @@
 
         checks = {
           build = self'.packages.default;
+          package = self.packages.${system}.default;
+          boot-test = import ./test.nix inputs;
         };
 
         devShells.default = with pkgs.haskellPackages; shellFor {

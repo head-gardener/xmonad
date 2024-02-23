@@ -21,6 +21,7 @@
             description = "PowerWatch daemon";
             wants = [ "upower.service" ];
             after = [ "upower.service" ];
+            wantedBy = [ "default.target" ];
 
             serviceConfig = {
               ExecStart = "${lib.getExe' self.packages.${pkgs.stdenv.system}.default "powerwatch"}";

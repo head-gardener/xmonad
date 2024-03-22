@@ -21,6 +21,7 @@ import XMonad.StackSet qualified as W
 import XMonad.Util.EZConfig
 import XMonad.Util.Loggers
 import XMonad.Util.Run
+import XMonad.Hooks.EastGate
 
 main :: IO ()
 main = do
@@ -28,6 +29,7 @@ main = do
     . ewmh
     . ewmhFullscreen
     . withEasySB (statusBarProp "xmobar" (pure myXmobarPP)) defToggleStrutsKey
+    . withMetrics def
     $ myConfig
 
 myConfig =
@@ -80,6 +82,7 @@ myKeys =
         restart "/home/hunter/xmonad/result/bin/xmonad" True
     ),
     ("M-d", "main menu", spawn "main-menu"),
+    ("M-i", "xprop", spawn "xprop | dmenu"),
     ("<XF86AudioRaiseVolume>", "vol up", spawn "cpanel volup"),
     ("<XF86AudioLowerVolume>", "vol down", spawn "cpanel voldown"),
     ("<XF86AudioMute>", "vol mute", spawn "cpanel volmute"),

@@ -3,6 +3,9 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
     flake-parts.url = "github:hercules-ci/flake-parts";
     pw-volume.url = "github:head-gardener/nixpkgs/pw-volume-fix";
+    east-gate.url = "/home/hunter/Source/east-gate";
+
+    east-gate.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs = inputs@{ self, nixpkgs, flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
@@ -31,7 +34,7 @@
         });
       };
 
-      perSystem = { self', system, pkgs, lib, wrapper, config, package, ... }: {
+      perSystem = { self', system, pkgs, lib, inputs', wrapper, config, package, ... }: {
         _module.args.package = hpack: hpack.developPackage {
           root = ./.;
           name = "myxmonad";
@@ -61,7 +64,9 @@
           overlays = [
             (final: prev: {
               pw-volume = inputs.pw-volume.legacyPackages.${system}.pw-volume;
+              east-gate = inputs'.east-gate.packages.east-gate;
               haskellPackages = prev.haskellPackages.extend (_: super: {
+                east-gate = inputs'.east-gate.packages.east-gate;
                 myxmonad = wrapper (package super);
               });
             })

@@ -21,6 +21,7 @@ library:
   - bytestring
   - process
   - transformers
+  - containers
 executables:
   cpanel:
     source-dirs: cpanel
@@ -30,7 +31,9 @@ executables:
   xmonad:
     source-dirs: app
     main: xmonad.hs
-    dependencies: myxmonad
+    dependencies:
+    - myxmonad
+    - east-gate
   powerwatch:
     source-dirs: app
     main: powerwatch.hs

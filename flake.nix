@@ -1,11 +1,12 @@
 {
   inputs = {
+    east-gate.inputs.nixpkgs.follows = "nixpkgs";
+
     nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
     flake-parts.url = "github:hercules-ci/flake-parts";
     pw-volume.url = "github:head-gardener/nixpkgs/pw-volume-fix";
-    east-gate.url = "/home/hunter/Source/east-gate";
-
-    east-gate.inputs.nixpkgs.follows = "nixpkgs";
+    # east-gate.url = "/home/hunter/Source/east-gate";
+    east-gate.url = "github:head-gardener/east-gate";
   };
   outputs = inputs@{ self, nixpkgs, flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {

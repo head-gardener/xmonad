@@ -8,17 +8,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1710987907,
-        "narHash": "sha256-/9iDf0I9O7fkQ4/nfLSg51FYY8MGSTbTIasfj7mmV9c=",
-        "ref": "refs/heads/master",
-        "rev": "99d343c03d69a0f36453d874ed6be38718c1b093",
-        "revCount": 2,
-        "type": "git",
-        "url": "file:///home/hunter/Source/east-gate"
+        "lastModified": 1711106744,
+        "narHash": "sha256-FP6hj/0SpWm8j9tzy+3KnPOQcFgIGvhK//QhLkPOh0c=",
+        "owner": "head-gardener",
+        "repo": "east-gate",
+        "rev": "970a54e310853b4933b9b3355e7d4af788db7a15",
+        "type": "github"
       },
       "original": {
-        "type": "git",
-        "url": "file:///home/hunter/Source/east-gate"
+        "owner": "head-gardener",
+        "repo": "east-gate",
+        "type": "github"
       }
     },
     "flake-parts": {

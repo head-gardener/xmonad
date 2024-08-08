@@ -2,12 +2,13 @@
   inputs = {
     east-gate.inputs.nixpkgs.follows = "nixpkgs";
 
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
     flake-parts.url = "github:hercules-ci/flake-parts";
     pw-volume.url = "github:head-gardener/nixpkgs/pw-volume-fix";
     # east-gate.url = "/home/hunter/Source/east-gate";
     east-gate.url = "github:head-gardener/east-gate";
   };
+
   outputs = inputs@{ self, nixpkgs, flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [ "x86_64-linux" ];
@@ -46,7 +47,8 @@
             postPatch = ''
               substituteInPlace ./lib/MyXmonad/CPanel.hs \
                 --replace '"pw-volume"' '"${lib.getExe pkgs.pw-volume}"' \
-                --replace '"brightnessctl"' '"${lib.getExe pkgs.brightnessctl}"'
+                --replace '"brightnessctl"' '"${lib.getExe pkgs.brightnessctl}"' \
+                --replace '"maim"' '"${lib.getExe pkgs.maim}"'
             '';
           });
         };

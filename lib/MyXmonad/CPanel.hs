@@ -16,10 +16,6 @@ import Text.Printf (printf)
 import XMonad (Default (..))
 import XMonad.Util.Run (runProcessWithInput)
 
--- remove once we get 0.6 transformers
-hoistMaybe :: (Applicative m) => Maybe b -> MaybeT m b
-hoistMaybe = MaybeT . pure
-
 data PWStatus = PWStatus
   { tooltip :: String
   , percentage :: Maybe Int
@@ -51,15 +47,15 @@ doBacklight :: (HasNotifPersistance m) => BacklightOp -> CPConfig -> m ()
 doBacklight op c = do
   br <- formatter <$> liftIO command
   notif $ notifStyle c <> LN.summary "Backlight" <> LN.body ("set to " ++ br)
- where
-  formatter = (!! 3) . splitOn ","
+  where
+    formatter = (!! 3) . splitOn ","
 
-  command :: IO String
-  command =
-    runProcessWithInput
-      "brightnessctl"
-      ["set", "5%" ++ [op], "-m"]
-      ""
+    command :: IO String
+    command =
+      runProcessWithInput
+        "brightnessctl"
+        ["set", "5%" ++ [op], "-m"]
+        ""
 
 doPipewire :: (HasNotifPersistance m) => [String] -> CPConfig -> m ()
 doPipewire args c = do

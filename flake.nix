@@ -48,7 +48,6 @@
               substituteInPlace ./lib/MyXmonad/CPanel.hs \
                 --replace '"pw-volume"' '"${lib.getExe pkgs.pw-volume}"' \
                 --replace '"brightnessctl"' '"${lib.getExe pkgs.brightnessctl}"' \
-                --replace '"maim"' '"${lib.getExe pkgs.maim}"'
             '';
           });
         };

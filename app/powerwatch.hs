@@ -8,57 +8,53 @@ import DBus.Socket (open)
 import DBus.TH (registerForPropertiesChanged)
 import Data.Map qualified as M
 import Data.Maybe (fromMaybe)
-import Libnotify (body, display, display_, summary)
 import Data.Word
+import Libnotify (Urgency (..), body, display, display_, summary, urgency)
 
 main :: IO ()
 main = do
   client <- connectSystem
-  -- TODO: notification style (low urg, crit, etc.)
   -- TODO: poll org.freedesktop.UPower for devices with EnumerateDevices
   let batRule =
         matchAny
           { matchPath = Just "/org/freedesktop/UPower/devices/battery_BAT0"
           }
   _ <- registerForPropertiesChanged client batRule $ \sig _ var ss -> do
-    let s = M.lookup "State" var
-    let w = M.lookup "WarningLevel" var
-    maybe
-      (return ())
-      ( \v ->
-          display_ $ summary "Battery State" <> body ("warning changed to " ++ formatWarning v)
-      )
-      w
-    maybe
-      (return ())
-      ( \v ->
-          display_ $ summary "Battery State" <> body ("state changed to " ++ formatState v)
-      )
-      s
+    let pass =
+          maybe
+            (return ())
+            ( \(m, u) ->
+                display_ $
+                  summary "Battery State"
+                    <> body ("warning changed to " ++ m)
+                    <> urgency u
+            )
+    pass $ formatState <$> M.lookup "State" var
+    pass $ formatWarning <$> M.lookup "WarningLevel" var
   -- TODO: this sucks
   forever $ threadDelay 100000000000
   where
-    formatState :: Variant -> String
+    formatState :: Variant -> (String, Urgency)
     formatState = doFormatState . fromMaybe 0 . fromVariant
 
-    doFormatState :: Word32 -> String
-    doFormatState 0 = "Unknown"
-    doFormatState 1 = "Charging"
-    doFormatState 2 = "Discharging"
-    doFormatState 3 = "Empty"
-    doFormatState 4 = "Fully charged"
-    doFormatState 5 = "Pending charge"
-    doFormatState 6 = "Pending discharge"
-    doFormatState _ = "Invalid value"
+    doFormatState :: Word32 -> (String, Urgency)
+    doFormatState 0 = ("Unknown", Low)
+    doFormatState 1 = ("Charging", Low)
+    doFormatState 2 = ("Discharging", Normal)
+    doFormatState 3 = ("Empty", Critical)
+    doFormatState 4 = ("Fully charged", Normal)
+    doFormatState 5 = ("Pending charge", Low)
+    doFormatState 6 = ("Pending discharge", Low)
+    doFormatState _ = ("Invalid value", Low)
 
-    formatWarning :: Variant -> String
+    formatWarning :: Variant -> (String, Urgency)
     formatWarning = doFormatWarning . fromMaybe 0 . fromVariant
 
-    doFormatWarning :: Word32 -> String
-    doFormatWarning 0 = "Unknown"
-    doFormatWarning 1 = "None"
-    doFormatWarning 2 = "Discharging"
-    doFormatWarning 3 = "Low"
-    doFormatWarning 4 = "Critical"
-    doFormatWarning 5 = "Action"
-    doFormatWarning _ = "Invalid value"
+    doFormatWarning :: Word32 -> (String, Urgency)
+    doFormatWarning 0 = ("Unknown", Low)
+    doFormatWarning 1 = ("None", Low)
+    doFormatWarning 2 = ("Discharging", Normal)
+    doFormatWarning 3 = ("Low", Normal)
+    doFormatWarning 4 = ("Critical", Critical)
+    doFormatWarning 5 = ("Action", Critical)
+    doFormatWarning _ = ("Invalid value", Low)

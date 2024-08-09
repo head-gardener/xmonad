@@ -15,13 +15,14 @@ library:
   source-dirs: lib
   generated-other-modules: Paths_myxmonad
   dependencies:
-  - libnotify
-  - split
   - aeson
   - bytestring
-  - process
-  - transformers
   - containers
+  - dbus
+  - libnotify
+  - process
+  - split
+  - transformers
 executables:
   cpanel:
     source-dirs: cpanel
@@ -38,6 +39,4 @@ executables:
     source-dirs: app
     main: powerwatch.hs
     dependencies:
-    - dbus
-    - libnotify
-    - containers
+    - myxmonad

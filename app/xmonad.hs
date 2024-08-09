@@ -1,5 +1,5 @@
-import MyXmonad.Notif
 import MyXmonad.CPanel qualified as CP
+import MyXmonad.Notif
 import XMonad
 import XMonad.Actions.Commands
 import XMonad.Actions.CycleRecentWS (toggleRecentNonEmptyWS)
@@ -9,6 +9,7 @@ import XMonad.Actions.FindEmptyWorkspace (tagToEmptyWorkspace, viewEmptyWorkspac
 import XMonad.Actions.GridSelect
 import XMonad.Actions.Search
 import XMonad.Config.Desktop
+import XMonad.Hooks.EastGate
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.StatusBar
@@ -21,7 +22,6 @@ import XMonad.StackSet qualified as W
 import XMonad.Util.EZConfig
 import XMonad.Util.Loggers
 import XMonad.Util.Run
-import XMonad.Hooks.EastGate
 
 main :: IO ()
 main = do
@@ -73,8 +73,10 @@ toCommands = fmap (\(a, b, c) -> (a ++ ": " ++ b, c))
 
 myKeys :: [(String, String, X ())]
 myKeys =
-  [ ("C-<Print>", "screenshot select", spawn "scrot -s"),
-    ("<Print>", "screenshot", spawn "scrot"),
+  [ ("C-S-<Print>", "screenshot selection to file", spawn "sleep 0.2; scrot -s ~/Screenshots/%Y-%m-%d-%T-screenshot.png"),
+    ("S-<Print>", "screenshot selection", spawn "sleep 0.2; scrot -s - | xclip -selection clipboard -t image/png -i"),
+    ("C-<Print>", "screenshot to file", spawn "scrot ~/Screenshots/%Y-%m-%d-%T-screenshot.png"),
+    ("<Print>", "screenshot", spawn "scrot - | xclip -selection clipboard -t image/png -i"),
     ( "M-r",
       "restart from dev dir",
       do

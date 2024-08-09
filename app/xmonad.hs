@@ -122,12 +122,12 @@ searchEngines =
     ( "nixos-packages",
       searchEngine
         "nixos packages"
-        "https://search.nixos.org/packages?channel=23.11&from=0&size=50&sort=relevance&type=packages&query="
+        "https://search.nixos.org/packages?channel=24.05&from=0&size=50&sort=relevance&type=packages&query="
     ),
     ( "nixos-options",
       searchEngine
         "nixos options"
-        "https://search.nixos.org/options?channel=23.11&size=50&sort=relevance&type=packages&query="
+        "https://search.nixos.org/options?channel=24.05&size=50&sort=relevance&type=packages&query="
     ),
     ("hackage", hackage),
     ("hoogle", hoogle),
@@ -180,7 +180,8 @@ myXPConfig =
       fgHLight = cs_darkgrey defaultCS,
       borderColor = cs_grey defaultCS,
       font = "xft:LilexNerdFont-medium-9",
-      promptBorderWidth = 0
+      promptBorderWidth = 0,
+      maxComplRows = Just 1
     }
 
 myXmobarPP :: PP

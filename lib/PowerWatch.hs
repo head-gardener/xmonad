@@ -29,7 +29,6 @@ watch = do
             )
     pass $ formatState <$> M.lookup "State" var
     pass $ formatWarning <$> M.lookup "WarningLevel" var
-  -- TODO: this sucks
   return ()
 
 formatState :: Variant -> (String, Urgency)

@@ -1,5 +1,8 @@
+import Control.Monad (unless)
+import Data.List (intercalate)
 import MyXmonad.CPanel qualified as CP
 import MyXmonad.Notif
+import PowerWatch qualified as PW
 import XMonad
 import XMonad.Actions.Commands
 import XMonad.Actions.CycleRecentWS (toggleRecentNonEmptyWS)
@@ -22,11 +25,11 @@ import XMonad.StackSet qualified as W
 import XMonad.Util.EZConfig
 import XMonad.Util.Loggers
 import XMonad.Util.Run
-import PowerWatch qualified as PW
 
 main :: IO ()
 main = do
-  PW.watch
+  bats <- PW.watch
+  unless (null bats) $ putStrLn $ "Watching batteries: " ++ intercalate ", " bats
   xmonad
     . ewmh
     . ewmhFullscreen

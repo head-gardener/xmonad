@@ -1,35 +1,53 @@
-module PowerWatch (watch) where
+module PowerWatch (watch, getBatteries) where
 
+import Control.Applicative ((<|>))
+import Control.Exception (try)
+import Control.Monad (forM_)
+import Control.Monad.IO.Class (MonadIO (liftIO))
+import Control.Monad.Trans.Maybe
 import DBus
 import DBus.Client
-import DBus.Socket (open)
+import DBus.Internal.Types
 import DBus.TH (registerForPropertiesChanged)
+import Data.Either (fromRight)
+import Data.List (isPrefixOf)
 import Data.Map qualified as M
 import Data.Maybe (fromMaybe)
 import Data.Word
-import Libnotify (Urgency (..), body, display, display_, summary, urgency)
+import Libnotify (Urgency (..), body, display_, summary, urgency)
 
-watch :: IO ()
+getBatteries :: Client -> IO (Maybe [ObjectPath])
+getBatteries client = do
+  reply <-
+    call_
+      client
+      (methodCall "/org/freedesktop/UPower" "org.freedesktop.UPower" "EnumerateDevices")
+        { methodCallDestination = Just "org.freedesktop.UPower"
+        }
+  let devs = fromVariant $ head $ methodReturnBody reply
+  return $ filter (isPrefixOf "battery" . last . pathElements) <$> devs
+
+watch :: IO [String]
 watch = do
   client <- connectSystem
-  -- TODO: poll org.freedesktop.UPower for devices with EnumerateDevices
-  let batRule =
-        matchAny
-          { matchPath = Just "/org/freedesktop/UPower/devices/battery_BAT0"
-          }
-  _ <- registerForPropertiesChanged client batRule $ \sig _ var ss -> do
-    let pass =
-          maybe
-            (return ())
-            ( \(m, u) ->
-                display_ $
-                  summary "Battery State"
-                    <> body ("warning changed to " ++ m)
-                    <> urgency u
-            )
-    pass $ formatState <$> M.lookup "State" var
-    pass $ formatWarning <$> M.lookup "WarningLevel" var
-  return ()
+
+  bats <- runMaybeT $ do
+    bats <- liftIO (try @ClientError (getBatteries client)) >>= hoistMaybe . fromRight Nothing
+    let batRules = map (\b -> matchAny {matchPath = Just b}) bats
+    liftIO $ forM_ batRules $ \r -> registerForPropertiesChanged client r $ \_ _ var _ -> do
+      let msg =
+            formatState <$> M.lookup "State" var
+              <|> formatWarning <$> M.lookup "WarningLevel" var
+      maybe (return ()) notify msg
+    return $ fmap (last . pathElements) bats
+  return $ fromMaybe [] bats
+
+notify :: (String, Urgency) -> IO ()
+notify (m, u) =
+  display_ $
+    summary "Battery State"
+      <> body ("warning changed to " ++ m)
+      <> urgency u
 
 formatState :: Variant -> (String, Urgency)
 formatState = doFormatState . fromMaybe 0 . fromVariant

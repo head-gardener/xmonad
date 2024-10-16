@@ -88,7 +88,7 @@ myKeys =
         notif' "restarting"
         restart "/home/hunter/xmonad/result/bin/xmonad" True
     ),
-    ("M-d", "main menu", spawn "main-menu"),
+    ("M-n", "edit a note", spawn (term ++ " fish -c \"note --select\"")),
     ("M-i", "xprop", spawn "xprop | dmenu"),
     ("<XF86AudioRaiseVolume>", "vol up", spawn "cpanel volup"),
     ("<XF86AudioLowerVolume>", "vol down", spawn "cpanel voldown"),

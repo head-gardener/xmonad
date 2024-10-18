@@ -19,6 +19,43 @@
           myxmonad = self.packages.x86_64-linux.default;
         };
 
+        nixosModules.myxmonad = ({ pkgs, config, lib, ... }:
+          let
+            myxmonad-pkg = self.packages.${pkgs.system}.default;
+            myxmonad = config.services.xserver.windowManager.myxmonad;
+          in {
+            options = {
+              services.xserver.windowManager.myxmonad = {
+                dmenuPackage = lib.mkPackageOption pkgs "dmenu" { };
+              };
+            };
+
+            config = {
+              environment.systemPackages = with pkgs; [
+                myxmonad.dmenuPackage
+                myxmonad-pkg
+                picom
+                scrot
+                xcolor
+                xorg.xmessage
+              ];
+
+              services.xserver = {
+                displayManager = {
+                  session = [{
+                    manage = "window";
+                    name = "xmonad";
+
+                    start = ''
+                      systemd-cat -t xmonad -- ${lib.getExe myxmonad-pkg} &
+                      waitPID=$!
+                    '';
+                  }];
+                };
+              };
+            };
+          });
+
         nixosModules.powerwatch = ({ lib, pkgs, ... }: {
           systemd.user.services.powerwatch = {
             enable = true;

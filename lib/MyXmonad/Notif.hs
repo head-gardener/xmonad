@@ -34,4 +34,4 @@ notif' s =
   void $
     liftIO $
       LN.display $
-        summary "XMonad notification" <> LN.body s
+        summary "XMonad internal" <> LN.body s

@@ -1,8 +1,11 @@
+import Control.Applicative ((<|>))
 import Control.Monad (unless)
 import Data.List (intercalate)
 import MyXmonad.CPanel qualified as CP
 import MyXmonad.Notif
 import PowerWatch qualified as PW
+import System.Directory (doesFileExist)
+import System.Environment (getEnv)
 import XMonad
 import XMonad.Actions.Commands
 import XMonad.Actions.CycleRecentWS (toggleRecentNonEmptyWS)
@@ -76,18 +79,28 @@ toKeys = fmap (\(a, _, b) -> (a, b))
 toCommands :: [(String, String, X ())] -> [(String, X ())]
 toCommands = fmap (\(a, b, c) -> (a ++ ": " ++ b, c))
 
+restartFromDev :: X ()
+restartFromDev = do
+  path <-
+    liftIO
+      ( getEnv "RELOAD_PATH"
+          <|> fmap (<> "/xmonad/result/bin/xmonad") (getEnv "HOME")
+          <|> return ""
+      )
+  exists <- liftIO $ doesFileExist path
+  if exists
+    then do
+      notif' "Restarting..."
+      restart path True
+    else notif' "Can't restart. Check RELOAD_PATH."
+
 myKeys :: [(String, String, X ())]
 myKeys =
   [ ("C-S-<Print>", "screenshot selection to file", spawn "sleep 0.2; scrot -s ~/Screenshots/%Y-%m-%d-%T-screenshot.png"),
     ("S-<Print>", "screenshot selection", spawn "sleep 0.2; scrot -s - | xclip -selection clipboard -t image/png -i"),
     ("C-<Print>", "screenshot to file", spawn "scrot ~/Screenshots/%Y-%m-%d-%T-screenshot.png"),
     ("<Print>", "screenshot", spawn "scrot - | xclip -selection clipboard -t image/png -i"),
-    ( "M-r",
-      "restart from dev dir",
-      do
-        notif' "restarting"
-        restart "/home/hunter/xmonad/result/bin/xmonad" True
-    ),
+    ("M-r", "restart from dev dir", restartFromDev),
     ("M-n", "edit a note", spawn (term ++ " fish -c \"note --select\"")),
     ("M-i", "xprop", spawn "xprop | dmenu"),
     ("<XF86AudioRaiseVolume>", "vol up", spawn "cpanel volup"),

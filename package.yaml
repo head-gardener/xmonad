@@ -33,6 +33,7 @@ executables:
     source-dirs: app
     main: xmonad.hs
     dependencies:
+    - directory
     - myxmonad
     - east-gate
   powerwatch:

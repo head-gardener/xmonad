@@ -27,6 +27,11 @@
             options = {
               services.xserver.windowManager.myxmonad = {
                 dmenuPackage = lib.mkPackageOption pkgs "dmenu" { };
+                reloadPath = lib.mkOption {
+                  type = lib.types.str;
+                  default = "$HOME/xmonad/result/bin/xmonad";
+                  description = "Path to reload xmonad binary from.";
+                };
               };
             };
 
@@ -47,6 +52,7 @@
                     name = "xmonad";
 
                     start = ''
+                      export RELOAD_PATH="${myxmonad.reloadPath}"
                       systemd-cat -t xmonad -- ${lib.getExe myxmonad-pkg} &
                       waitPID=$!
                     '';

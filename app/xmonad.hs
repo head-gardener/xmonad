@@ -1,5 +1,10 @@
+{-# LANGUAGE LambdaCase #-}
+{-# OPTIONS_GHC -Wno-missing-signatures #-}
+
 import Control.Applicative ((<|>))
+import Control.Arrow ((&&&))
 import Control.Monad (unless)
+import Data.Functor ((<&>))
 import Data.List (intercalate)
 import MyXmonad.CPanel qualified as CP
 import MyXmonad.Notif
@@ -10,9 +15,9 @@ import XMonad
 import XMonad.Actions.Commands
 import XMonad.Actions.CycleRecentWS (toggleRecentNonEmptyWS)
 import XMonad.Actions.DwmPromote (dwmpromote)
-import XMonad.Actions.EasyMotion
 import XMonad.Actions.FindEmptyWorkspace (tagToEmptyWorkspace, viewEmptyWorkspace)
 import XMonad.Actions.GridSelect
+import XMonad.Actions.Minimize
 import XMonad.Actions.Search
 import XMonad.Config.Desktop
 import XMonad.Hooks.EastGate
@@ -20,11 +25,12 @@ import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.StatusBar
 import XMonad.Hooks.StatusBar.PP
+import XMonad.Layout.BoringWindows qualified as BW
+import XMonad.Layout.Minimize
 import XMonad.Layout.NoBorders (noBorders)
 import XMonad.Layout.Spacing
 import XMonad.Prompt
 import XMonad.Prompt.Ssh (sshPrompt)
-import XMonad.StackSet qualified as W
 import XMonad.Util.EZConfig
 import XMonad.Util.Loggers
 import XMonad.Util.Run
@@ -46,14 +52,18 @@ myConfig =
       modMask = mod4Mask,
       manageHook = myManage,
       workspaces = myWorkspaces,
-      layoutHook = spacingWithEdge 10 layout,
+      layoutHook =
+        spacingWithEdge 10
+          . minimize
+          . BW.boringWindows
+          $ layout,
       normalBorderColor = "#121212",
       focusedBorderColor = "#1e1e1e",
       borderWidth = 1
     }
     `additionalKeysP` toKeys myKeys
   where
-    layout = tiled ||| Mirror tiled ||| noBorders Full
+    layout = tiled ||| noBorders Full
       where
         tiled = Tall nmaster delta ratio
         nmaster = 1
@@ -114,7 +124,21 @@ myKeys =
     ("M-m", "dwm promote", dwmpromote),
     ("M-e", "find empty", viewEmptyWorkspace),
     ("M-S-e", "tag to empty", tagToEmptyWorkspace),
-    ("M-f", "easy motion", selectWindow myEasyMotion >>= (`whenJust` windows . W.focusWindow)),
+    ("M-f", "fold", withFocused minimizeWindow),
+    ( "M-C-f",
+      "unfold",
+      withMinimized
+        ( \case
+            [] -> return ()
+            [w] -> maximizeWindowAndFocus w
+            ws -> do
+              let f :: (Functor m) => (m a, b) -> m (a, b)
+                  f (ma, b) = ma <&> (,b)
+              ws' <- mapM (f . (getName &&& id)) ws
+              w <- gridselect myGSConfig ws'
+              maybe (return ()) maximizeWindowAndFocus w
+        )
+    ),
     ( "M-s",
       "search",
       do
@@ -129,6 +153,15 @@ myKeys =
         xmessage c
     )
   ]
+
+getName :: Window -> X String
+getName win = do
+  class' <- runQuery className win
+  name' <- runQuery (stringProperty "WM_NAME") win
+  return $ case (class', name') of
+    ("", "") -> "undefined"
+    (c, "") -> c
+    (_, n) -> n
 
 searchEngines :: [(String, SearchEngine)]
 searchEngines =
@@ -155,17 +188,6 @@ searchEngines =
     ("phind", searchEngine "phind" "https://www.phind.com/search?q="),
     ("vocabulary", vocabulary)
   ]
-
-myEasyMotion :: EasyMotionConfig
-myEasyMotion =
-  def
-    { txtCol = cs_white defaultCS,
-      bgCol = cs_black defaultCS,
-      borderCol = cs_white defaultCS,
-      overlayF = textSize,
-      cancelKey = xK_Escape,
-      emFont = "xft: LilexNerdFont-100"
-    }
 
 keyRef :: X ()
 keyRef = runCommand $ toCommands myKeys

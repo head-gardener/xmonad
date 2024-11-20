@@ -76,6 +76,7 @@ myWorkspaces = ["work", "web", "msg", "4", "5", "6", "mail", "8", "9"]
 myManage =
   composeAll
     [ className =? "Xmessage" --> doFloat,
+      stringProperty "WM_NAME" =? "Media viewer" --> doFloat,
       className =? "Conky" --> doIgnore,
       className =? "thunderbird" --> doShift "mail",
       className =? "TelegramDesktop" --> doShift "msg",

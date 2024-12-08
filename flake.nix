@@ -27,6 +27,14 @@
             options = {
               services.xserver.windowManager.myxmonad = {
                 dmenuPackage = lib.mkPackageOption pkgs "dmenu" { };
+                extraCommands = lib.mkOption {
+                  type = lib.types.lines;
+                  default = "";
+                  description = ''
+                    Additional commands to execute in display manager startup script.
+                    Be careful not to block script's execution.
+                  '';
+                };
                 reloadPath = lib.mkOption {
                   type = lib.types.str;
                   default = "$HOME/xmonad/result/bin/xmonad";
@@ -54,6 +62,7 @@
                     start = ''
                       export RELOAD_PATH="${myxmonad.reloadPath}"
                       systemd-cat -t xmonad -- ${lib.getExe myxmonad-pkg} &
+                      ${myxmonad.extraCommands}
                       waitPID=$!
                     '';
                   }];

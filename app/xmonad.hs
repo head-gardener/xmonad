@@ -113,6 +113,7 @@ myKeys =
     ("<Print>", "screenshot", spawn "scrot - | xclip -selection clipboard -t image/png -i"),
     ("M-r", "restart from dev dir", restartFromDev),
     ("M-n", "edit a note", spawn (term ++ " fish -c \"note --select\"")),
+    ("M-C-p", "passmenu", spawn "passmenu > /dev/null"),
     ("M-i", "xprop", spawn "xprop | dmenu"),
     ("<XF86AudioRaiseVolume>", "vol up", spawn "cpanel volup"),
     ("<XF86AudioLowerVolume>", "vol down", spawn "cpanel voldown"),
@@ -147,7 +148,7 @@ myKeys =
         maybe (return ()) (promptSearch myXPConfig) eng
     ),
     ("M-g", "grid select goto", goToSelected myGSConfig),
-    ( "M-C-p",
+    ( "M-S-p",
       "colorpicker",
       do
         c <- runProcessWithInput "xcolor" [] ""

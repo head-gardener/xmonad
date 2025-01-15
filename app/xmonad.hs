@@ -34,6 +34,7 @@ import XMonad.Prompt.Ssh (sshPrompt)
 import XMonad.Util.EZConfig
 import XMonad.Util.Loggers
 import XMonad.Util.Run
+import XMonad.Hooks.ManageHelpers (isDialog, isFullscreen, doFullFloat, doRaise, transience')
 
 main :: IO ()
 main = do
@@ -77,10 +78,17 @@ myManage =
   composeAll
     [ className =? "Xmessage" --> doFloat,
       stringProperty "WM_NAME" =? "Media viewer" --> doFloat,
+
       className =? "Conky" --> doIgnore,
+      className =? "activate-linux" --> doIgnore <+> doRaise <+> doFloat,
+
       className =? "thunderbird" --> doShift "mail",
       className =? "TelegramDesktop" --> doShift "msg",
       className =? "easyeffects" --> doShift "6",
+
+      isDialog --> doFloat,
+      isFullscreen --> doFullFloat,
+      transience',
       manageDocks
     ]
 
